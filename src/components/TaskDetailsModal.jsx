@@ -1,39 +1,53 @@
 import React, { useState } from 'react';
 
 const TaskDetailsModal = ({ onSave, onClose, card, task }) => {
-    const [title, setTitle] = useState(task?.title || '');
-    const [description, setDescription] = useState(task?.description || '');
-    const [priority, setPriority] = useState(task?.priority || 'Normal');
-    const [plannedDate, setPlannedDate] = useState(task?.plannedDate || '');
-    const [status, setStatus] = useState(task?.status || 'Todo');
-    const [assignee, setAssignee] = useState(task?.assignee || '');
-    const [reporter, setReporter] = useState(task?.reporter || '');
-    const [attachments, setAttachments] = useState(task?.attachments || []);
-  
-    const handleSave = () => {
-        const updatedTask = {
-          id: task?.id,
-          title,
-          description,
-          priority,
-          plannedDate,
-          status,
-          assignee,
-          reporter,
-          attachments,
-        };
-      
-        onSave(updatedTask);
-      
-        onClose();
-      };
-      
+  const [title, setTitle] = useState(task?.title || '');
+  const [description, setDescription] = useState(task?.description || '');
+  const [priority, setPriority] = useState(task?.priority || 'Normal');
+  const [plannedDate, setPlannedDate] = useState(task?.plannedDate || '');
+  const [status, setStatus] = useState(task?.status || 'Todo');
+  const [assignee, setAssignee] = useState(task?.assignee || '');
+  const [reporter, setReporter] = useState(task?.reporter || '');
+  const [attachments, setAttachments] = useState(task?.attachments || []);
 
 
+  const handleStatusChange = (newStatus) => {
+    // Set the new status in the state
+    setStatus(newStatus);
+
+    // Move task to the corresponding card based on status change
+    moveTaskToCard({ ...task, status: newStatus });
+  };
+
+
+
+  const handleSave = () => {
+    const newTask = {
+      title,
+      description,
+      priority,
+      plannedDate,
+      status,
+      assignee,
+      reporter,
+      attachments,
+    };
+
+    if (task) {
+      // If task exists, it's an edit, so pass the updated task with its id
+      onSave({ ...newTask, id: task.id });
+    } else {
+      // If no task, it's a new task, so just pass the new task
+      onSave(newTask);
+    }
+
+    onClose();
+  };
 
   return (
     <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white p-8 rounded-md w-96">
+        {console.log(task)}
+      <div className="bg-gray-300 p-8 rounded-md w-96">
         <h2 className="text-xl font-semibold mb-4">{task ? 'Edit Task' : 'Add Task'}</h2>
 
         <div className="mb-4">
@@ -91,20 +105,20 @@ const TaskDetailsModal = ({ onSave, onClose, card, task }) => {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="status" className="block text-sm font-medium text-gray-700">
-            Status
-          </label>
-          <select
-            id="status"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="mt-1 p-2 block w-full border rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
-          >
-            <option value="Todo">Todo</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
-          </select>
-        </div>
+        <label htmlFor="status" className="block text-sm font-medium text-gray-700">
+          Status
+        </label>
+        <select
+          id="status"
+          value={status}
+          onChange={(e) => handleStatusChange(e.target.value)}
+          className="mt-1 p-2 block w-full border rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
+        >
+          <option value="Todo">Todo</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Completed">Completed</option>
+        </select>
+      </div>
 
         <div className="mb-4">
           <label htmlFor="assignee" className="block text-sm font-medium text-gray-700">

@@ -69,7 +69,7 @@ const Login = () => {
             <input
               id="password"
               name="password"
-              type="text"
+              type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
