@@ -1,34 +1,57 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = {
-  tasks: {
-    Todo: [],
-    Doing: [],
-    Done: [],
+export const taskSlice = createSlice({
+  name: "task",
+  initialState: {
+    tasks: [
+      {
+        id: 1,
+        title: "I have to do this work",
+        description: "by 6 pm",
+        status: "Todo",
+        priority: "Major",
+        plannedDate: "2024-01-24",
+        attachments: ["file1.jpg", "file2.jpg"],
+      },
+      {
+        id: 2,
+        title: "I am doing this work",
+        description: "will finish it by 7pm",
+        status: "In Progress",
+        priority: "Major",
+        plannedDate: "2024-01-24",
+        attachments: ["file1.jpg", "file2.jpg"],
+      },
+      {
+        id: 3,
+        title: "Hurrey!! completed this work",
+        description: "before 6pm ",
+        status: "Completed",
+        priority: "Major",
+        plannedDate: "2024-01-25",
+        attachments: ["file1.jpg", "file2.jpg"],
+      },
+    ],
+    sortBy: null,
   },
-};
-
-const tasksSlice = createSlice({
-  name: 'tasks',
-  initialState,
   reducers: {
     addTask: (state, action) => {
-      const { card, task } = action.payload;
-      state.tasks[card].push(task);
+      state.tasks.push(action.payload);
     },
-    updateTask: (state, action) => {
-      const { card, updatedTask } = action.payload;
-      state.tasks[card] = state.tasks[card].map((task) =>
-        task.id === updatedTask.id ? updatedTask : task
-      );
+    editTask: (state, action) => {
+      const { id, updatedTask } = action.payload;
+      const taskIndex = state.tasks.findIndex((task) => task.id === id);
+      if (taskIndex !== -1) {
+        const existingTask = { ...state.tasks[taskIndex] };
+        state.tasks[taskIndex] = { ...existingTask, ...updatedTask };
+      }
     },
-    moveTask: (state, action) => {
-      const { sourceCard, targetCard, task } = action.payload;
-      state.tasks[sourceCard] = state.tasks[sourceCard].filter((t) => t.id !== task.id);
-      state.tasks[targetCard].push(task);
+    setSortBy: (state, action) => {
+      state.sortBy = action.payload;
     },
   },
 });
 
-export const { addTask, updateTask, moveTask } = tasksSlice.actions;
-export default tasksSlice.reducer;
+export const { addTask, editTask, setSortBy } = taskSlice.actions;
+
+export default taskSlice.reducer;

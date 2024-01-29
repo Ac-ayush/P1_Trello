@@ -1,98 +1,74 @@
-import React, { useState } from 'react';
-import TaskCard from './TaskCard';
-import TaskDetailsModal from './TaskDetailsModal';
-import taskSlice from '../taskSlice';
+import React, { useState } from "react";
+import Task from "./Task";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import CreateTodo from "./createTodo";
+import Sidebar from "./Sidebar";
 
-const Taskboard = () => {
-  const [showTaskModal, setShowTaskModal] = useState(false);
-  const [selectedCard, setSelectedCard] = useState('');
-  const [selectedTask, setSelectedTask] = useState(null);
-  const [tasks, setTasks] = useState({
-    Todo: [],
-    Doing: [],
-    Done: [],
-  });
-
-  const handleAddTask = (card) => {
-    setSelectedCard(card);
-    setShowTaskModal(true);
-    setSelectedTask(null);
+const TaskBoard = () => {
+  const [showCreateTodo, setShowCreateTodo] = useState(false);
+  const navigate = useNavigate();
+  const handleAddTask = () => {
+    setShowCreateTodo(true);
   };
 
-  const handleTaskClick = (task) => {
-    setSelectedTask(task);
-    setShowTaskModal(true);
+  const handleCloseCreateTodo = () => {
+    setShowCreateTodo(false);
   };
-
-const handleSaveTask = (newTask) => {
-  setShowTaskModal(false);
-
-  if (selectedTask) {
-    // Update existing task
-    const updatedTasks = {
-      ...tasks,
-      [selectedCard]: tasks[selectedCard].map((t) => (t.id === selectedTask.id ? newTask : t)),
-    };
-    setTasks(updatedTasks);
-  } else {
-    // Add new task
-    const updatedTasks = { ...tasks, [selectedCard]: [...tasks[selectedCard], newTask] };
-    setTasks(updatedTasks);
-  }
-
-  // Move task to the corresponding card based on status change
-  moveTaskToCard(newTask);
-};
-
-
-  const moveTaskToCard = (task) => {
-    const { status } = task;
-
-    if (status === 'Todo' || status === 'In Progress' || status === 'Completed') {
-      const sourceCard = selectedTask ? selectedCard : 'Todo';
-      const targetCard = status === 'Todo' ? 'Todo' : status === 'In Progress' ? 'Doing' : 'Done';
-
-      if (sourceCard !== targetCard) {
-        const updatedTasks = {
-          ...tasks,
-          [sourceCard]: tasks[sourceCard].filter(t => t.id !== task.id),
-          [targetCard]: [...tasks[targetCard], task],
-        };
-        setTasks(updatedTasks);
-      }
-    }
-  };
-
-  const handleCloseModal = () => {
-    setShowTaskModal(false);
-    setSelectedCard('');
-    setSelectedTask(null);
-  };
+  const tasks = useSelector((state) => state.task.tasks);
 
   return (
+    <div className="flex bg-indigo-800 h-screen">
 
-    <div className="flex space-x-4">
-        
-      {Object.keys(tasks).map((card) => (
-        <TaskCard
-          key={card}
-          card={card}
-          tasks={tasks[card]}
-          onAddTask={() => handleAddTask(card)}
-          onTaskClick={(task) => handleTaskClick(task)}
-        />
-      ))}
+      <div className="w-1/5 p-4 bg-teal-400 text-white h-1/2 rounded-lg mx-1 my-2">
+      <div className="flex-shrink-0 p-4 flex justify-center">
+          <button
+            onClick={handleAddTask}
+            className="bg-green-600 text-white px-4 py-2 rounded"
+          >
+            +Add Task
+          </button>
+        </div>
 
-      {showTaskModal && (
-        <TaskDetailsModal
-          onSave={handleSaveTask}
-          onClose={handleCloseModal}
-          card={selectedCard}
-          task={selectedTask}
-        />
-      )}
+        <div className="w-full p-4 bg-teal-400 text-white h-1/2 rounded-lg mx-1 my-2">
+          <Sidebar />
+        </div>
+      </div>
+      
+
+      <div className="flex-1 flex m-2">
+        <div className="w-1/3 p-4 bg-indigo-500 rounded-lg">
+          <h2 className="text-xl font-bold mb-4 text-center">Todo</h2>
+          {tasks
+            .filter((task) => task.status === "Todo")
+            .map((task) => (
+              <Task key={task.id} task={task} />
+            ))}
+        </div>
+
+        <div className="w-1/3 p-4 bg-indigo-500	rounded-lg mx-2">
+          <h2 className="text-xl font-bold mb-4 text-center">In Progress</h2>
+          {tasks
+            .filter((task) => task.status === "In Progress")
+            .map((task) => (
+              <Task key={task.id} task={task} />
+            ))}
+        </div>
+
+        <div className="w-1/3 p-4 bg-indigo-500 rounded-lg">
+          <h2 className="text-xl font-bold mb-4 text-center">Completed</h2>
+          {tasks
+            .filter((task) => task.status === "Completed")
+            .map((task) => (
+              <Task key={task.id} task={task} />
+            ))}
+        </div>
+      </div>
+
+      {/* Create Todo Modal */}
+      {showCreateTodo && <CreateTodo onClose={handleCloseCreateTodo} />}
     </div>
   );
 };
 
-export default Taskboard;
+export default TaskBoard;
