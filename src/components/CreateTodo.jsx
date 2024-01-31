@@ -6,12 +6,14 @@ import { useNavigate } from "react-router-dom";
 const CreateTodo = ({ onClose }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const defaultPlannedDate = new Date().toISOString().split("T")[0];
+
   const [todoData, setTodoData] = useState({
     id: Date.now(),
     title: "",
     description: "",
-    priority: "",
-    plannedDate: "",
+    priority: "Major",
+    plannedDate: defaultPlannedDate,
     status: "Todo",
     assignee: "",
     reporter: "",
